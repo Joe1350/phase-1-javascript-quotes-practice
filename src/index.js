@@ -27,6 +27,7 @@ function renderQuote(quote) {
     const likeBtn = create('button')
     const likesNum = create('span')
     const deleteBtn = create('button')
+    const editButton = create('button')
         // assign
     quoteCard.className = 'quote-card'
     blockQuote.className = 'blockquote'
@@ -43,19 +44,46 @@ function renderQuote(quote) {
     }
     deleteBtn.className = 'btn-danger'
     deleteBtn.textContent = 'Delete'
+    editButton.textContent = 'Edit'
         // event listener
     likeBtn.addEventListener('click', () => {
         likesNum.textContent = ''
-        updateLikes(quote)
+        createAndUpdateLikes(quote)
         likesNum.textContent = quote.likes.length
     })
     deleteBtn.addEventListener('click', () => {
         quoteCard.remove()
         deleteQuote(quote.id)
     })
+    editButton.addEventListener('click', () => {
+            // make Stuff
+        const editQuoteForm = create('form')
+        const editQuoteInput = create('input')
+        const editQuoteAuthor = create('input')
+        const editQuoteSubmit = create('input')
+            // assign stuff
+        editQuoteInput.type = 'text'
+        editQuoteInput.placeholder = 'Edit Quote'
+        editQuoteAuthor.type = 'text'
+        editQuoteAuthor.placeholder = 'Edit Author'
+        editQuoteSubmit.type = 'submit'
+        editQuoteSubmit.value = 'Change'
+            // event listener
+        editQuoteForm.addEventListener('submit', e => {
+            e.preventDefault()
+            let newQuote = {
+                quote: editQuoteInput.value,
+                author: editQuoteAuthor.value
+            }
+            updateQuote(quote, newQuote)
+        })
+            // append
+        editQuoteForm.append(editQuoteInput, editQuoteAuthor, editQuoteSubmit)
+        quoteCard.append(editQuoteForm)
+    })
         // append
     likeBtn.append(likesNum)
-    blockQuote.append(quoteContent, quoteAuthor, lineBreak, likeBtn, deleteBtn)
+    blockQuote.append(quoteContent, quoteAuthor, lineBreak, likeBtn, deleteBtn, editButton)
     quoteCard.append(blockQuote)
     allQuotesContainer.append(quoteCard)
 }
@@ -83,15 +111,9 @@ function createNewQuote(newQuote) {
     })
     .then(r => r.json())
     .then(quote => quote)
-} 
-        // Read
-function getQuotesWithLikes() {
-    fetch(`${quotesURL}?_embed=likes`)
-    .then(r => r.json())
-    .then(quotes => quotes.forEach(quote => renderQuote(quote)))
 }
-        // Update
-function updateLikes(quote) {
+
+function createAndUpdateLikes(quote) {
     fetch(likesURL, {
         method: 'POST',
         headers: {
@@ -101,6 +123,29 @@ function updateLikes(quote) {
             quoteId: quote.id,
             createdAt: Math.ceil(Date.now() / 1000)
         })
+    })
+    .then(r => r.json())
+    .then(quote => quote)
+    allQuotesContainer.textContent = ''
+    fetch(`${quotesURL}?_embed=likes`)
+    getQuotesWithLikes();
+}
+        // Read
+function getQuotesWithLikes() {
+    fetch(`${quotesURL}?_embed=likes`)
+    .then(r => r.json())
+    .then(quotes => quotes.forEach(quote => renderQuote(quote)))
+}
+        // Update
+function updateQuote(quote, newQuote) {
+    console.log(quote)
+    console.log(newQuote)
+    fetch(`${quotesURL}/${quote.id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newQuote)
     })
     .then(r => r.json())
     .then(quote => quote)
@@ -123,3 +168,6 @@ function deleteQuote(id){
 
     //initialize
 getQuotesWithLikes();
+
+// the likes do persist... not entirely sure why, cause it started working when I made a mistake
+// haven't done the bonus toggle sort

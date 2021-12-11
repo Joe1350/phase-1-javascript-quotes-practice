@@ -61,8 +61,8 @@
       "id": 12
     },
     {
-      "quote": "test to edit",
-      "author": "test to edit",
+      "quote": "edit",
+      "author": "edit",
       "id": 13
     }
   ],
@@ -86,6 +86,16 @@
       "quoteId": 12,
       "createdAt": 1639264703,
       "id": 4
+    },
+    {
+      "quoteId": 1,
+      "createdAt": 1639266216,
+      "id": 5
+    },
+    {
+      "quoteId": 1,
+      "createdAt": 1639266226,
+      "id": 6
     }
   ]
 }
